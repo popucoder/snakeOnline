@@ -1,5 +1,8 @@
-import pygame, os
+
+import pygame, os, sys
 from pygame.math import Vector2
+from Button import Button
+
 
 
 class Snake():
@@ -19,7 +22,7 @@ class Snake():
         self.skinId = skinId
         self.player = skinId
         self.new_block = False
-        
+        self.score = 0
         self.init_graphics()
         self.reset()
 
@@ -109,9 +112,9 @@ class Snake():
             self.body = body_copy[:]
 
         self.check_collision(food)
-        self.check_fail()
 
     def add_block(self):
+        self.score += 1
         self.new_block = True
 
     def play_crunch_sound(self):
@@ -124,7 +127,8 @@ class Snake():
             self.body = [Vector2(5,5),Vector2(4,5),Vector2(3,5)]
 
         self.direction = Vector2(0,0)
-           
+        self.score = 0
+
     def handle(self, event):
         if event.key == pygame.K_UP:
             if self.direction.y != 1:
@@ -151,14 +155,13 @@ class Snake():
     def check_fail(self):
 
         if not 0 <= self.body[0].x < self.CELL_NUMBER or not 0 <= self.body[0].y < self.CELL_NUMBER:
-            self.game_over()
+            self.reset()
+            return True
 
         for block in self.body[1:]:
             if block == self.body[0]:
-                self.game_over()
-    
-    def game_over(self):
-        self.reset()
+                self.reset()
+                return True
 
     def set_sprite(self, index):
         x = (self.FRAME_WIDTH + self.PADDING) * index[0]
@@ -169,5 +172,3 @@ class Snake():
         _surface = pygame.Surface((self.FRAME_WIDTH, self.FRAME_HEIGHT), pygame.SRCALPHA)
         _surface.blit(self.sprite_imgs, (0,0), rect)
         return _surface
-
-      
