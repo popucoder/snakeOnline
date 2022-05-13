@@ -3,7 +3,7 @@ from pygame.math import Vector2
 
 class Food:
     def __init__(self, config_game, skinId):
-           # surface
+        # surface
         self.screen = config_game['display']
         self.CELL_SIZE = config_game['cell_size']
         self.CELL_NUMBER = config_game['cell_number']
