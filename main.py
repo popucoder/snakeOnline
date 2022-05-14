@@ -1,21 +1,21 @@
 
 import sys, pygame
-import snake, food, Button
+import Snake, Food, Button
 
 
 
 
 
 class SnakeGame:
-    # setup surface game
-    CELL_SIZE = 32
-    CELL_NUMBER = 20
+    # setup game
+    CELL_SIZE = 40
+    CELL_NUMBER = 16
     GAME_WITH = CELL_SIZE * CELL_NUMBER
-    GAME_HEIGHT = CELL_SIZE * CELL_NUMBER
+    GAME_HEIGHT = CELL_SIZE * CELL_NUMBER 
 
     # setup navbar game
-    NAV_WITH = CELL_SIZE*CELL_NUMBER
-    NAV_HEIGHT = 30
+    NAV_WITH = GAME_WITH
+    NAV_HEIGHT = 35
 
     # setup all display
     WITH = GAME_WITH
@@ -27,6 +27,9 @@ class SnakeGame:
         self.clock = pygame.time.Clock()
         self.size = (self.WITH, self.HEIGHT)
         self.screen = pygame.display.set_mode(self.size)
+        self.font = pygame.font.SysFont(None, 35)
+        
+
         self.startImage = pygame.image.load('./images/start.png').convert_alpha()
         xCenter = self.GAME_WITH/2
         yCenter = self.GAME_HEIGHT/2
@@ -43,31 +46,44 @@ class SnakeGame:
             'cell_size': self.CELL_SIZE,
             'cell_number': self.CELL_NUMBER
         }
-        self.snake1 = snake.Snake(self.CONFIG_GAME, 1)
-        self.food = food.Food(self.CONFIG_GAME, 1)
+        self.snake1 = Snake.Snake(self.CONFIG_GAME, 1)
+        self.food = Food.Food(self.CONFIG_GAME, 1)
+
+        self.score_image = self.food.food_image
+
+        
 
 
-    def Menu(self):
-        self.screen = pygame.display.set_mode(self.size)
+
+    def menu(self):
+
         self.startImage = pygame.image.load('./images/start.png').convert_alpha()
         xCenter = self.GAME_WITH/2
         yCenter = self.GAME_HEIGHT/2
-        startBtn = Button.Button( xCenter, yCenter, self.startImage,0.5)
+
+        startBtn = Button.Button( xCenter, yCenter, self.startImage, 0.5)
+
         while True:
             self.screen.fill((175,215,70))
             self.clock.tick(self.FPS)
 
             if startBtn.draw(self.screen):
+
                 self.run()
-                #break
-                # # event loop
+
+                #event loop
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
-                pygame.display.update()
+            
+            pygame.display.update()
 
     def run(self):
+
+        f = open('score_max.txt', 'r')
+        self.score_max = int(f.read())
+        f.close()
 
         # main game loop
     
@@ -83,35 +99,48 @@ class SnakeGame:
                 if event.type == self.SCREEN_UPDATE:
                     self.update()
 
-
-
                 if event.type == pygame.KEYDOWN:
                     self.handle(event)
 
             # re-draw elements
             if(self.game_over()):
                 break
+
             self.draw()
             
     def draw(self):
         self.draw_navgame()
         self.draw_game()
-
         pygame.display.update()
+
+
     def draw_navgame(self):
         self.nav_surface.fill((175,0,70))
-        _score = self.snake1.score
-        scoreImage = pygame.image.load('images/food_1.png'.format(1)).convert_alpha()
-        width = scoreImage.get_width()
-        height = scoreImage.get_height()
-        scoreImage = pygame.transform.scale(scoreImage,(int(width * 0.8), int(height * 0.8)))
-        font = pygame.font.SysFont(None, 24)
-        scoreSurface = font.render(str(_score), True, (0,0,0))
-        score_rect = scoreSurface.get_rect(center = (30,15))
-        scoreImage_rect = scoreImage.get_rect(midright = (score_rect.left, score_rect.centery))
-        self.nav_surface.blit(scoreImage,scoreImage_rect)
-        self.nav_surface.blit(scoreSurface,score_rect)
+
+        self.draw_score()
+
         self.screen.blit(self.nav_surface, (0, 0))
+
+
+    def draw_score(self):
+
+
+        score_max = self.font.render("SCORE MAX: " + str(self.score_max), True, (0,0,0))
+        score_surface = self.font.render(str(self.snake1.score), True, (0,0,0))
+
+        x_pos = int(self.NAV_WITH/2 - score_max.get_width()/2)
+        y_pos = int(self.NAV_HEIGHT/2 - score_surface.get_height()/2)
+
+        score_rect = score_surface.get_rect(topleft = (50, y_pos))
+        score_image_rect = self.score_image.get_rect(midright = (score_rect.left, score_rect.centery))
+
+
+        self.nav_surface.blit(score_max, (x_pos, y_pos))
+        self.nav_surface.blit(self.score_image, score_image_rect)
+        self.nav_surface.blit(score_surface, score_rect)
+
+
+
 
     def draw_game(self):
         self.game_surface.fill((175,215,70))
@@ -123,8 +152,8 @@ class SnakeGame:
 
     def update(self):
         self.snake1.move_snake(self.food)
+
     def handle(self, event):
-        #self.my_mario.handle(event)
         self.snake1.handle(event)
         
     def game_over(self):
@@ -132,7 +161,7 @@ class SnakeGame:
         
 
 
-
 g = SnakeGame()
-g.Menu()
+g.menu()
+
 

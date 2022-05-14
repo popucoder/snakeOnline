@@ -7,6 +7,7 @@ class Button():
 		self.rect = self.image.get_rect()
 		self.rect.center = (x, y)
 		self.clicked = False
+
 	def draw(self, screen) -> None:
 		action = False
 		#get mouse position

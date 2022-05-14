@@ -1,7 +1,6 @@
 
-import pygame, os, sys
+import pygame
 from pygame.math import Vector2
-from Button import Button
 
 
 
@@ -11,25 +10,23 @@ class Snake():
     FRAME_HEIGHT = 40
     PADDING = 0
 
-    LENGTH = 3
-    SPEED = 10
 
     def __init__(self, config_game, skinId):
-        # surface
         self.screen = config_game['display']
         self.CELL_SIZE = config_game['cell_size']
         self.CELL_NUMBER = config_game['cell_number']
+
         self.skinId = skinId
-        self.player = skinId
         self.new_block = False
         self.score = 0
         self.init_graphics()
         self.reset()
 
-    # pygame.mixer.pre_init(44100,-16,2,512)
+    
         
     def init_graphics(self):
         self.sprite_imgs = pygame.image.load('images/snake_{}.png'.format(self.skinId))
+        self.crunch_sound = pygame.mixer.Sound('Sound/crunch.wav')
 
         self.head_up = self.set_sprite([0,0])
         self.head_down = self.set_sprite([1,0])
@@ -101,6 +98,7 @@ class Snake():
     def move_snake(self, food):
         if self.direction == Vector2(0,0): 
             return
+            
         if self.new_block == True:
             body_copy = self.body[:]
             body_copy.insert(0,body_copy[0] + self.direction)
@@ -121,11 +119,8 @@ class Snake():
         self.crunch_sound.play()
 
     def reset(self):
-        if self.player == 1:
-            self.body = [Vector2(5,10),Vector2(4,10),Vector2(3,10)]
-        else:
-            self.body = [Vector2(5,5),Vector2(4,5),Vector2(3,5)]
-
+        
+        self.body = [Vector2(5,10),Vector2(4,10),Vector2(3,10)]
         self.direction = Vector2(0,0)
         self.score = 0
 
@@ -147,21 +142,35 @@ class Snake():
             if food.pos == self.body[0]:
                 food.randomize()
                 self.add_block()
+                self.play_crunch_sound()
 
             for block in self.body[1:]:
                 if block == food.pos:
                     food.randomize()
 
     def check_fail(self):
+        isFail = False
 
         if not 0 <= self.body[0].x < self.CELL_NUMBER or not 0 <= self.body[0].y < self.CELL_NUMBER:
-            self.reset()
-            return True
+            isFail = True 
 
         for block in self.body[1:]:
             if block == self.body[0]:
-                self.reset()
-                return True
+                isFail = True 
+        
+        if(isFail):
+            f = open('score_max.txt', 'r')
+            score_max = int(f.read())
+    
+            if(self.score > score_max):
+                f = open('score_max.txt', 'w')
+                f.write(str(self.score))
+            f.close()
+
+            self.reset()
+
+        return isFail    
+    
 
     def set_sprite(self, index):
         x = (self.FRAME_WIDTH + self.PADDING) * index[0]

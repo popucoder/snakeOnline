@@ -8,14 +8,14 @@ class Food:
         self.CELL_SIZE = config_game['cell_size']
         self.CELL_NUMBER = config_game['cell_number']
 
-        self.food = pygame.image.load('images/food_{}.png'.format(skinId)).convert_alpha()
+        self.food_image = pygame.image.load('images/food_{}.png'.format(skinId)).convert_alpha()
         self.randomize()
 
     def draw(self):
         x_pos = int(self.pos.x * self.CELL_SIZE)
         y_pos = int(self.pos.y * self.CELL_SIZE)
         fruit_rect = pygame.Rect( x_pos, y_pos, self.CELL_SIZE, self.CELL_SIZE)
-        self.screen.blit(self.food, fruit_rect)
+        self.screen.blit(self.food_image, fruit_rect)
 
     def randomize(self):
         self.x = random.randint(0, self.CELL_NUMBER - 1)
