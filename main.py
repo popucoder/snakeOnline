@@ -2,13 +2,9 @@
 import sys, pygame
 import Snake, Food, Button
 
-
-
-
-
 class SnakeGame:
     # setup game
-    CELL_SIZE = 40
+    CELL_SIZE = 30
     CELL_NUMBER = 16
     GAME_WITH = CELL_SIZE * CELL_NUMBER
     GAME_HEIGHT = CELL_SIZE * CELL_NUMBER 
@@ -28,9 +24,10 @@ class SnakeGame:
         self.size = (self.WITH, self.HEIGHT)
         self.screen = pygame.display.set_mode(self.size)
         self.font = pygame.font.SysFont(None, 35)
-        
+        self.gameOver = False
 
         self.startImage = pygame.image.load('./images/start.png').convert_alpha()
+        self.overImage = pygame.image.load('./images/gameOver.png').convert_alpha()
         xCenter = self.GAME_WITH/2
         yCenter = self.GAME_HEIGHT/2
         
@@ -53,8 +50,30 @@ class SnakeGame:
 
         
 
+    def menuGameOver(self):
+        self.overImage = pygame.image.load('./images/gameOver.png').convert_alpha()
+        xCenter = self.GAME_WITH/2
+        yCenter = self.GAME_HEIGHT/2
 
-
+        overBtn = Button.Button( xCenter, yCenter, self.overImage, 0.5)
+        while True:
+            self.screen.fill((175,215,70))
+            self.clock.tick(self.FPS)
+            print(self.gameOver)
+            if(self.gameOver):
+                # TODO: Ve diem o day ne nha phu thinh
+                if overBtn.draw(self.screen):
+                    self.run();
+            else:
+                print("kec")
+                self.menu()
+                #event loop
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+            
+            pygame.display.update()
     def menu(self):
 
         self.startImage = pygame.image.load('./images/start.png').convert_alpha()
@@ -68,8 +87,12 @@ class SnakeGame:
             self.clock.tick(self.FPS)
 
             if startBtn.draw(self.screen):
+                gameOver = self.run()
+                print(gameOver)
+                if(gameOver):
+                    self.gameOver = gameOver
+                break
 
-                self.run()
 
                 #event loop
             for event in pygame.event.get():
@@ -104,7 +127,7 @@ class SnakeGame:
 
             # re-draw elements
             if(self.game_over()):
-                break
+                return True
 
             self.draw()
             
@@ -162,6 +185,6 @@ class SnakeGame:
 
 
 g = SnakeGame()
-g.menu()
+g.menuGameOver()
 
 
