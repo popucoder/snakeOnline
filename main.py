@@ -4,7 +4,7 @@ import Snake, Food, Button
 
 class SnakeGame:
     # setup game
-    CELL_SIZE = 30
+    CELL_SIZE = 40
     CELL_NUMBER = 16
     GAME_WITH = CELL_SIZE * CELL_NUMBER
     GAME_HEIGHT = CELL_SIZE * CELL_NUMBER 
@@ -47,33 +47,37 @@ class SnakeGame:
         self.food = Food.Food(self.CONFIG_GAME, 1)
 
         self.score_image = self.food.food_image
+        self.isGameOver = False
 
         
 
     def menuGameOver(self):
         self.overImage = pygame.image.load('./images/gameOver.png').convert_alpha()
         xCenter = self.GAME_WITH/2
-        yCenter = self.GAME_HEIGHT/2
+        yCenter = int(self.GAME_HEIGHT/2)
+        score_max = self.font.render("SCORE MAX: " + str(self.score_max), True, (0,0,0))
+        your_score = self.font.render("YOUR SCORE: " + str(self.your_score), True, (0,0,0))
 
+        x_pos = int(self.GAME_WITH/2 - score_max.get_width()/2)
+    
         overBtn = Button.Button( xCenter, yCenter, self.overImage, 0.5)
-        while True:
+        isOut = False
+        while not isOut:
             self.screen.fill((175,215,70))
             self.clock.tick(self.FPS)
-            print(self.gameOver)
-            if(self.gameOver):
-                # TODO: Ve diem o day ne nha phu thinh
-                if overBtn.draw(self.screen):
-                    self.run();
-            else:
-                print("kec")
-                self.menu()
-                #event loop
+
+            self.screen.blit(score_max, (x_pos, yCenter + 100))
+            self.screen.blit(your_score, (x_pos, yCenter + 130))
+            if overBtn.draw(self.screen):
+                isOut = True
+                
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
             
             pygame.display.update()
+
     def menu(self):
 
         self.startImage = pygame.image.load('./images/start.png').convert_alpha()
@@ -81,20 +85,15 @@ class SnakeGame:
         yCenter = self.GAME_HEIGHT/2
 
         startBtn = Button.Button( xCenter, yCenter, self.startImage, 0.5)
+        
 
         while True:
             self.screen.fill((175,215,70))
             self.clock.tick(self.FPS)
 
             if startBtn.draw(self.screen):
-                gameOver = self.run()
-                print(gameOver)
-                if(gameOver):
-                    self.gameOver = gameOver
-                break
+                self.run()
 
-
-                #event loop
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -109,8 +108,8 @@ class SnakeGame:
         f.close()
 
         # main game loop
-    
-        while True:
+        self.isGameOver = False;
+        while not self.isGameOver:
             # so lan lap trong 1 giay
             self.clock.tick(self.FPS)
             # event loop
@@ -127,9 +126,10 @@ class SnakeGame:
 
             # re-draw elements
             if(self.game_over()):
-                return True
-
-            self.draw()
+                self.isGameOver = True
+                self.menuGameOver()
+            else:
+                self.draw()
             
     def draw(self):
         self.draw_navgame()
@@ -180,11 +180,22 @@ class SnakeGame:
         self.snake1.handle(event)
         
     def game_over(self):
-        return self.snake1.check_fail()
+        self.your_score = self.snake1.score
+        isFail = self.snake1.check_fail()
+        if(isFail):
+            f = open('score_max.txt', 'r')
+            self.score_max = int(f.read())
+    
+            if(self.your_score > self.score_max):
+                self.score_max = self.your_score
+                f = open('score_max.txt', 'w')
+                f.write(str(self.your_score))
+            f.close()
+        return isFail
         
 
 
 g = SnakeGame()
-g.menuGameOver()
+g.menu()
 
 

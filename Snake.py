@@ -16,6 +16,8 @@ class Snake():
         self.CELL_SIZE = config_game['cell_size']
         self.CELL_NUMBER = config_game['cell_number']
 
+        self.direction = Vector2(0,0)
+        
         self.skinId = skinId
         self.new_block = False
         self.score = 0
@@ -96,9 +98,9 @@ class Snake():
         elif tail_relation == Vector2(0,-1): self.tail = self.tail_down
 
     def move_snake(self, food):
-        if self.direction == Vector2(0,0): 
+        if self.direction == Vector2(0,0):
             return
-            
+
         if self.new_block == True:
             body_copy = self.body[:]
             body_copy.insert(0,body_copy[0] + self.direction)
@@ -119,7 +121,6 @@ class Snake():
         self.crunch_sound.play()
 
     def reset(self):
-        
         self.body = [Vector2(5,10),Vector2(4,10),Vector2(3,10)]
         self.direction = Vector2(0,0)
         self.score = 0
@@ -159,14 +160,6 @@ class Snake():
                 isFail = True 
         
         if(isFail):
-            f = open('score_max.txt', 'r')
-            score_max = int(f.read())
-    
-            if(self.score > score_max):
-                f = open('score_max.txt', 'w')
-                f.write(str(self.score))
-            f.close()
-
             self.reset()
 
         return isFail    
